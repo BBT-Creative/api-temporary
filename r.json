@@ -1,0 +1,46 @@
+{
+	"status": 200,
+	"message": "OK",
+	"data": [
+		{
+			"id": 1001,
+			"title": "BBK Creative.",
+			"description": "BBK Creative, tempat kreativitas bertemu strategi. Kami berspesialisasi dalam social media handling dan pembuatan konten kreatif, yang dirancang untuk meningkatkan brand Anda dan melibatkan audiens Anda.",
+			"tags": ["Social Media Handling", "Creative Content"],
+			"href": "/services/bisa-bikin-konten-creative",
+			"videoUrl": "http://localhost:3001/clouds/mov/bisa-bikin-konten-creative.mp4"
+		},
+		{
+			"id": 1002,
+			"title": "BBM Digital.",
+			"description": "BBM Digital berspesialisasi dalam memaksimalkan dampak online Anda dengan layanan digital komprehensif kami.",
+			"tags": ["Web Development", "Mobile Apps Development", "Software Impl", "UI/UX"],
+			"href": "/services/bisa-bikin-web-&-it-solution",
+			"videoUrl": "http://localhost:3001/clouds/mov/bisa-bikin-web.mp4"
+		},
+		{
+			"id": 1003,
+			"title": "BBM Digital.",
+			"description": "BBM Digital berspesialisasi dalam memaksimalkan dampak online Anda dengan layanan digital komprehensif kami.",
+			"tags": ["Digital Ads", "SEO Optimization", "E-Commerce Ads"],
+			"href": "/services/bisa-bikin-marketing-digital",
+			"videoUrl": "http://localhost:3001/clouds/mov/bisa-bikin-marketing-digital.mp4"
+		},
+		{
+			"id": 1004,
+			"title": "BBF Management.",
+			"description": "BBF Management unggul dalam solusi manajemen yang dirancang untuk meningkatkan visibilitas dan dampak brand Anda.",
+			"tags": ["KOL Service", "Affiliate Trainee KOL", "Brand Activation", "BBT Army"],
+			"href": "/services/bisa-bikin-famous-mgmt",
+			"videoUrl": "http://localhost:3001/clouds/mov/bisa-bikin-famous-mgmt.mp4"
+		},
+		{
+			"id": 1005,
+			"title": "BBT Studio.",
+			"description": "Apakah Anda ingin meningkatkan acara atau project Anda dengan layanan online live streaming terbaik, hosting offline profesional, dan liputan foto dan video yang memukau? Di BBT Studio, kami menawarkan rangkaian layanan lengkap untuk memenuhi kebutuhan Anda.",
+			"tags": ["Online Live Streaming", "Offline Host/MC", "Photography/Videography"],
+			"href": "/services/bisa-bikin-team-creative",
+			"videoUrl": "http://localhost:3001/clouds/mov/bisa-bikin-team-creative.mp4"
+		}
+	]
+}

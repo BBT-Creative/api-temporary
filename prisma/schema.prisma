@@ -1,0 +1,268 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// ==================================
+// ============ Insights ============
+// ==================================
+
+model Insight {
+    id            Int               @id @default(autoincrement())
+    type          InsightType       @default(blog)
+    featured      Boolean           @default(false) // Max 1 per type
+    title         String
+    posterPath    String
+    posterCaption String?
+    content       String
+    category      InsightCategory[]
+    createdDate   DateTime          @default(now())
+
+    // Relation to CaseStudy, only relevant if `type == caseStudy`
+    caseStudy CaseStudy?
+}
+
+model CaseStudy {
+    insightId             Int               @id
+    titleIndonesian       String?
+    description           String
+    descriptionIndonesian String?
+    clientName            String?
+    clientIndustry        String?
+    clientLogoUrl         String?
+    yearCollabs           String?
+    serviceName           String[]          @default([])
+    serviceTags           String[]          @default([])
+    result                CaseStudyResult[]
+
+    // Relation back to Insight
+    insight Insight @relation(fields: [insightId], references: [id])
+}
+
+model CaseStudyResult {
+    id         Int                 @id @default(autoincrement())
+    caseStudy  CaseStudy[]
+    type       CaseStudyResultType @default(number)
+    resultName String
+    value      Int
+}
+
+enum CaseStudyResultType {
+    number
+    percentage
+}
+
+enum InsightType {
+    blog
+    caseStudy
+}
+
+// ==================================
+// ============ SERVICES ============
+// ==================================
+
+model Service {
+    id                    Int            @id @default(autoincrement())
+    title                 String
+    description           String
+    tags                  String[]       @default([])
+    slug                  String         @default("")
+    videoUrl              String         @default("")
+    titleIndonesian       String?
+    descriptionIndonesian String?
+    detail                ServiceDetail?
+}
+
+model ServiceDetail {
+    id              Int                       @id @default(autoincrement())
+    service         Service                   @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    serviceId       Int                       @unique
+    backgroundColor String
+    imageUrl        String                    @default("")
+    pageTitles      Json                      @default("[]")
+    flagIconPath    String
+    flagTitle       String
+    calculation     ServiceDetailCalculation?
+    contents        ServiceDetailContent?
+}
+
+model ServiceDetailContent {
+    id                    Int                        @id @default(autoincrement())
+    serviceDetail         ServiceDetail              @relation(fields: [serviceDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    serviceDetailId       Int                        @unique
+    title                 String
+    description           String
+    titleIndonesian       String?
+    descriptionIndonesian String?
+    serviceItems          ServiceDetailContentItem[]
+}
+
+model ServiceDetailContentItem {
+    id                    Int                    @id @default(autoincrement())
+    title                 String[]
+    description           String
+    tags                  String[]
+    imageUrl              String
+    titleIndonesian       String[]               @default([])
+    descriptionIndonesian String?
+    detailContents        ServiceDetailContent[]
+}
+
+model ServiceDetailCalculation {
+    id                                        Int           @id @default(autoincrement())
+    title                                     Json          @default("[]")
+    form                                      Json          @default("{}")
+    description                               String
+    realTimeTitle                             String
+    realTimeDescription                       String
+    realTimeEstimatedPriceTextDesc            String
+    realTimeEstimatedResultTextDesc           String
+    realTimeConsultablePrice                  String
+    realTimeTermsAndConditionApply            String
+    // Indonesian
+    titleIndonesian                           Json          @default("[]")
+    formIndonesian                            Json          @default("{}")
+    descriptionIndonesian                     String?
+    realTimeTitleIndonesian                   String?
+    realTimeDescriptionIndonesian             String?
+    realTimeEstimatedPriceTextDescIndonesian  String?
+    realTimeEstimatedResultTextDescIndonesian String?
+    realTimeConsultablePriceIndonesian        String?
+    realTimeTermsAndConditionApplyIndonesian  String?
+    // Relation
+    serviceDetail                             ServiceDetail @relation(fields: [serviceDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    serviceDetailId                           Int           @unique
+}
+
+enum ServiceTitleType {
+    plain
+    styled
+}
+
+// ==============================================
+// ============ POTENTIAL ON SERVICE ============
+// ==============================================
+
+model RequestCalculation {
+    id              Int    @id @default(autoincrement())
+    email           String
+    dataCalculation Json
+}
+
+// ==========================================
+// ============ INSIGHT CATEGORY ============
+// ==========================================
+
+model InsightCategory {
+    id       Int       @id @default(autoincrement())
+    name     String    @unique
+    insights Insight[]
+}
+
+// ========================================================
+// ============ MAIN WEB SSR (SINGLE INSTANCE) ============
+// ========================================================
+
+model MainWebSSR {
+    id                        Int                         @id @default(autoincrement())
+    homeClients               HomeClient[]
+    homeFaq                   HomeFaq[]
+    appMenuBranch             AppMenuBranch[]
+    homeMainVideo             HomeMainVideo?
+    servicePlatforms          ServicePlatform[]
+    serviceMonthCollaboration ServiceMonthCollaboration[]
+}
+
+model HomeClient {
+    id           Int         @id @default(autoincrement())
+    name         String
+    logoUrl      String
+    mainWebSSR   MainWebSSR? @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId Int?
+}
+
+model HomeFaq {
+    id                 Int         @id @default(autoincrement())
+    question           String
+    answer             String
+    questionIndonesian String?
+    answerIndonesian   String?
+    mainWebSSR         MainWebSSR? @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId       Int?
+}
+
+model AppMenuBranch {
+    id           Int         @id @default(autoincrement())
+    title        String
+    addressPhone String
+    mapLink      String
+    mainWebSSR   MainWebSSR? @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId Int?
+}
+
+model HomeMainVideo {
+    id           Int               @id @default(autoincrement())
+    videoUrl     String
+    type         HomeMainVideoType
+    mainWebSSR   MainWebSSR        @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId Int               @unique
+}
+
+enum HomeMainVideoType {
+    mov
+    mp4
+}
+
+model ServicePlatform {
+    id           Int         @id @default(autoincrement())
+    name         String
+    mainWebSSR   MainWebSSR? @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId Int?
+}
+
+model ServiceMonthCollaboration {
+    id           Int         @id @default(autoincrement())
+    name         String
+    suffix       String
+    mainWebSSR   MainWebSSR? @relation(fields: [mainWebSSRId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    mainWebSSRId Int?
+}
+
+// ======================================
+// ============ FILE STORAGE ============
+// ======================================
+
+model FileStorage {
+    id        Int             @id @default(autoincrement())
+    path      String
+    type      FileStorageType
+    filename  String
+    mimeType  String
+    size      Float // File size in MB
+    publicUrl String // Full URL path to access the file
+    createdAt DateTime        @default(now())
+}
+
+enum FileStorageType {
+    video
+    image
+    document
+}
+
+// =====================================
+// ============ ADMIN PANEL ============
+// =====================================
+
+// ======================================
+// ============ CLIENT PANEL ============
+// ======================================
