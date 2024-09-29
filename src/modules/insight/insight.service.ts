@@ -4,7 +4,7 @@ import { CreateCaseStudyDto } from "./dto/create-casestudy-dto";
 import { CreateBlogDto } from "./dto/create-blog-dto";
 import { CaseStudy, InsightType } from "@prisma/client";
 import { caseStudyPreset } from "./dto/preset/caseStudyPreset";
-import { Insight } from "./insight.interface";
+import { InsightListItem } from "./insight.interface";
 
 @Injectable()
 export class InsightService {
@@ -141,15 +141,9 @@ export class InsightService {
 		const insights = await this.prisma.insight.findMany({
 			include: {
 				category: true,
-				caseStudy: {
-					include: {
-						result: true,
-					},
-				},
 			},
 		});
-
-		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
+		return Promise.all(insights.map((insight) => this.transformInsightsData(insight, baseUrl)));
 	}
 
 	async getAllInsightByType(type?: "blog" | "caseStudy", baseUrl?: string) {
@@ -161,15 +155,27 @@ export class InsightService {
 			},
 			include: {
 				category: true,
-				caseStudy: {
-					include: {
-						result: true,
-					},
-				},
 			},
 		});
 
-		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
+		return Promise.all(insights.map((insight) => this.transformInsightsData(insight, baseUrl)));
+	}
+
+	async getInsightByCategory(category?: string, baseUrl?: string) {
+		const insights = await this.prisma.extendedClient.insight.findMany({
+			where: {
+				category: {
+					some: {
+						name: category,
+					},
+				},
+			},
+			include: {
+				category: true,
+			},
+		});
+
+		return Promise.all(insights.map((insight) => this.transformInsightsData(insight, baseUrl)));
 	}
 
 	async getInsightById(id: number, baseUrl?: string) {
@@ -187,32 +193,6 @@ export class InsightService {
 			},
 		});
 
-		return this.transformInsightData(insight, baseUrl);
-	}
-
-	async getInsightByCategory(category?: string, baseUrl?: string) {
-		const insights = await this.prisma.extendedClient.insight.findMany({
-			where: {
-				category: {
-					some: {
-						name: category,
-					},
-				},
-			},
-			include: {
-				category: true,
-				caseStudy: {
-					include: {
-						result: true,
-					},
-				},
-			},
-		});
-
-		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
-	}
-
-	private transformInsightData(insight: Insight, baseUrl?: string) {
 		const { content, caseStudy, posterPath, ...otherInsightData } = insight;
 
 		const modifiedHtmlContent = content.replace(/src="(\/clouds[^"]*)"/g, (match, group1) => {
@@ -265,6 +245,33 @@ export class InsightService {
 			posterPath: modifiedPosterPath,
 			content: modifiedHtmlContent,
 			caseStudy: caseStudyData,
+		};
+	}
+
+	/**
+	 * Transform Insight Data.\
+	 * **Note: ONLY USE THIS FOR LIST DATA ITEMS**\
+	 * Otherwise create new helper.
+	 */
+	private transformInsightsData(insight: InsightListItem, baseUrl?: string) {
+		const { posterPath, ...otherInsightData } = insight;
+
+		let modifiedPosterPath: string = "";
+
+		if (posterPath) {
+			const isBase64 = posterPath.startsWith("data:");
+			const isUrl = posterPath.startsWith("http://") || posterPath.startsWith("https://");
+			if (isBase64 || isUrl) {
+				modifiedPosterPath = posterPath; // Return as is if base64 or URL
+			} else {
+				// If it's a path (relative), prepend the base URL
+				modifiedPosterPath = `${baseUrl}${posterPath}`;
+			}
+		}
+
+		return {
+			...otherInsightData,
+			posterPath: modifiedPosterPath,
 		};
 	}
 }
