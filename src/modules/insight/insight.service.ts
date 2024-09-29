@@ -2,8 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateCaseStudyDto } from "./dto/create-casestudy-dto";
 import { CreateBlogDto } from "./dto/create-blog-dto";
-import { CaseStudy, InsightType, Prisma } from "@prisma/client";
+import { CaseStudy, InsightType } from "@prisma/client";
 import { caseStudyPreset } from "./dto/preset/caseStudyPreset";
+import { Insight } from "./insight.interface";
 
 @Injectable()
 export class InsightService {
@@ -136,8 +137,8 @@ export class InsightService {
 		return await Promise.all(caseStudies);
 	}
 
-	async getAllInsight() {
-		return this.prisma.insight.findMany({
+	async getAllInsight(baseUrl?: string) {
+		const insights = await this.prisma.insight.findMany({
 			include: {
 				category: true,
 				caseStudy: {
@@ -147,12 +148,16 @@ export class InsightService {
 				},
 			},
 		});
+
+		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
 	}
 
-	async getAllInsightByType(type?: "blog" | "caseStudy") {
-		return this.prisma.extendedClient.insight.findMany({
+	async getAllInsightByType(type?: "blog" | "caseStudy", baseUrl?: string) {
+		const insights = await this.prisma.extendedClient.insight.findMany({
 			where: {
-				type: type,
+				type: {
+					equals: type,
+				},
 			},
 			include: {
 				category: true,
@@ -163,6 +168,8 @@ export class InsightService {
 				},
 			},
 		});
+
+		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
 	}
 
 	async getInsightById(id: number, baseUrl?: string) {
@@ -180,36 +187,11 @@ export class InsightService {
 			},
 		});
 
-		const { content, caseStudy, ...otherInsightData } = insight;
-
-		const modifiedHtmlContent = content.replace(/src="(\/clouds[^"]*)"/g, (match, group1) => {
-			if (!group1.startsWith("http") && !group1.startsWith("https")) {
-				return baseUrl ? `src="${baseUrl}${group1}"` : match;
-			}
-
-			return match;
-		});
-
-		let caseStudyData: CaseStudy | null = null;
-
-		if (caseStudy) {
-			const { clientLogoUrl, ...otherCaseStudyData } = caseStudy;
-			caseStudyData = {
-				...otherCaseStudyData,
-				clientLogoUrl: baseUrl ? `${baseUrl}${clientLogoUrl}` : clientLogoUrl,
-			};
-		}
-
-		return {
-			...otherInsightData,
-			posterPath: baseUrl ? `${baseUrl}${insight.posterPath}` : insight.posterPath,
-			content: modifiedHtmlContent,
-			caseStudy: caseStudyData,
-		};
+		return this.transformInsightData(insight, baseUrl);
 	}
 
-	async getInsightByCategory(category?: string) {
-		return this.prisma.extendedClient.insight.findMany({
+	async getInsightByCategory(category?: string, baseUrl?: string) {
+		const insights = await this.prisma.extendedClient.insight.findMany({
 			where: {
 				category: {
 					some: {
@@ -226,5 +208,63 @@ export class InsightService {
 				},
 			},
 		});
+
+		return Promise.all(insights.map((insight) => this.transformInsightData(insight, baseUrl)));
+	}
+
+	private transformInsightData(insight: Insight, baseUrl?: string) {
+		const { content, caseStudy, posterPath, ...otherInsightData } = insight;
+
+		const modifiedHtmlContent = content.replace(/src="(\/clouds[^"]*)"/g, (match, group1) => {
+			if (!group1.startsWith("http") && !group1.startsWith("https")) {
+				return baseUrl ? `src="${baseUrl}${group1}"` : match;
+			}
+
+			return match;
+		});
+
+		let modifiedPosterPath: string = "";
+
+		if (posterPath) {
+			const isBase64 = posterPath.startsWith("data:");
+			const isUrl = posterPath.startsWith("http://") || posterPath.startsWith("https://");
+			if (isBase64 || isUrl) {
+				modifiedPosterPath = posterPath; // Return as is if base64 or URL
+			} else {
+				// If it's a path (relative), prepend the base URL
+				modifiedPosterPath = `${baseUrl}${posterPath}`;
+			}
+		}
+
+		let caseStudyData: CaseStudy | null = null;
+
+		if (caseStudy) {
+			const { clientLogoUrl, ...otherCaseStudyData } = caseStudy;
+
+			let modifiedClientLogoUrl: string | null = null;
+
+			if (clientLogoUrl) {
+				const isBase64 = clientLogoUrl.startsWith("data:");
+				const isUrl = clientLogoUrl.startsWith("http://") || clientLogoUrl.startsWith("https://");
+				if (isBase64 || isUrl) {
+					modifiedClientLogoUrl = clientLogoUrl; // Return as is if base64 or URL
+				} else {
+					// If it's a path (relative), prepend the base URL
+					modifiedClientLogoUrl = `${baseUrl}${clientLogoUrl}`;
+				}
+			}
+
+			caseStudyData = {
+				...otherCaseStudyData,
+				clientLogoUrl: modifiedClientLogoUrl,
+			};
+		}
+
+		return {
+			...otherInsightData,
+			posterPath: modifiedPosterPath,
+			content: modifiedHtmlContent,
+			caseStudy: caseStudyData,
+		};
 	}
 }

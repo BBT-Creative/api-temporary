@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { CreateServiceDto } from "./dto/create-service-dto";
 import { servicesPresets } from "./dto/presets";
 import { Prisma } from "@prisma/client";
+import { Service } from "./service.interface";
 
 @Injectable()
 export class ServiceService {
@@ -198,93 +199,10 @@ export class ServiceService {
 			},
 		});
 
-		return services.map((item) => ({
-			id: item.id,
-			title: lang === "id" ? item.titleIndonesian || item.title : item.title,
-			description: lang === "id" ? item.descriptionIndonesian || item.description : item.description,
-			tags: item.tags,
-			href: `/services/${item.slug}`,
-			slug: item.slug,
-			videoUrl: `${baseUrl}${item.videoUrl}`,
-			detail: {
-				id: item.detail?.id,
-				backgroundColor: item.detail?.backgroundColor,
-				imageUrl: `${baseUrl}${item.detail?.imageUrl}`,
-				flagIconPath: `${baseUrl}${item.detail?.flagIconPath}`,
-				flagTitle: item.detail?.flagTitle,
-				pageTitles: item.detail?.pageTitles,
-				calculation: {
-					id: item.detail?.calculation?.id,
-					title:
-						lang === "id"
-							? item.detail?.calculation?.titleIndonesian || item.detail?.calculation?.title
-							: item.detail?.calculation?.title,
-					form:
-						lang === "id"
-							? item.detail?.calculation?.formIndonesian || item.detail?.calculation?.form
-							: item.detail?.calculation?.form,
-					description:
-						lang === "id"
-							? item.detail?.calculation?.descriptionIndonesian || item.detail?.calculation?.description
-							: item.detail?.calculation?.description,
-					realTimeTitle:
-						lang === "id"
-							? item.detail?.calculation?.realTimeTitleIndonesian || item.detail?.calculation?.realTimeTitle
-							: item.detail?.calculation?.realTimeTitle,
-					realTimeDescription:
-						lang === "id"
-							? item.detail?.calculation?.realTimeDescriptionIndonesian ||
-								item.detail?.calculation?.realTimeDescription
-							: item.detail?.calculation?.realTimeDescription,
-					realTimeEstimatedPriceTextDesc:
-						lang === "id"
-							? item.detail?.calculation?.realTimeEstimatedPriceTextDescIndonesian ||
-								item.detail?.calculation?.realTimeEstimatedPriceTextDesc
-							: item.detail?.calculation?.realTimeEstimatedPriceTextDesc,
-					realTimeEstimatedResultTextDesc:
-						lang === "id"
-							? item.detail?.calculation?.realTimeEstimatedResultTextDescIndonesian ||
-								item.detail?.calculation?.realTimeDescription
-							: item.detail?.calculation?.realTimeDescription,
-					realTimeConsultablePrice:
-						lang === "id"
-							? item.detail?.calculation?.realTimeConsultablePriceIndonesian ||
-								item.detail?.calculation?.realTimeConsultablePrice
-							: item.detail?.calculation?.realTimeConsultablePrice,
-					realTimeTermsAndConditionApply:
-						lang === "id"
-							? item.detail?.calculation?.realTimeTermsAndConditionApplyIndonesian ||
-								item.detail?.calculation?.realTimeTermsAndConditionApply
-							: item.detail?.calculation?.realTimeTermsAndConditionApply,
-				},
-				contents: {
-					contents: {
-						id: item?.detail?.id,
-						title:
-							lang === "id"
-								? item?.detail?.contents?.titleIndonesian || item?.detail?.contents?.title
-								: item?.detail?.contents?.title,
-						description:
-							lang === "id"
-								? item?.detail?.contents?.descriptionIndonesian || item?.detail?.contents?.description
-								: item?.detail?.contents?.description,
-						serviceItems: item?.detail?.contents?.serviceItems.map((serviceItem) => ({
-							id: serviceItem.id,
-							title: lang === "id" ? serviceItem.titleIndonesian || serviceItem.title : serviceItem.title,
-							description:
-								lang === "id"
-									? serviceItem.descriptionIndonesian || serviceItem.description
-									: serviceItem.description,
-							tags: serviceItem.tags,
-							imageUrl: `${baseUrl}${serviceItem.imageUrl}`,
-						})),
-					},
-				},
-			},
-		}));
+		return Promise.all(services.map((service) => this.transformServiceData(service, lang, baseUrl)));
 	}
 
-	async getDetailBySlug(lang: string, slug: string, baseUrl?: string) {
+	async getDetailBySlug(lang: "en" | "id", slug: string, baseUrl?: string) {
 		const service = await this.prisma.service.findFirstOrThrow({
 			where: {
 				slug: {
@@ -305,6 +223,11 @@ export class ServiceService {
 			},
 		});
 
+		return this.transformServiceData(service, lang, baseUrl);
+	}
+
+	/* Transform some data like URL */
+	private transformServiceData(service: Service, lang: "en" | "id", baseUrl?: string) {
 		return {
 			id: service.id,
 			title: lang === "id" ? service.titleIndonesian || service.title : service.title,

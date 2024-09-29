@@ -31,22 +31,25 @@ export class InsightController {
 
 	@Get()
 	async getAllInsight() {
-		return this.insightService.getAllInsight();
+		const baseUrl = this.configService.get<string>("BASE_URL");
+		return this.insightService.getAllInsight(baseUrl);
 	}
 
 	@Get()
 	async getAllInsightByType(@Query() query: FilterInsightByTypeDto) {
-		return this.insightService.getAllInsightByType(query.type);
+		const baseUrl = this.configService.get<string>("BASE_URL");
+		return this.insightService.getAllInsightByType(query.type, baseUrl);
 	}
 
 	@Get(":id")
 	async getInsightById(@Param() params: FindInsightByIdDto) {
-		const baseUrl = this.configService.get<string>("BASE_URL") || "";
+		const baseUrl = this.configService.get<string>("BASE_URL");
 		return this.insightService.getInsightById(params.id, baseUrl);
 	}
 
 	@Get()
 	async getInsightByCategory(@Query() query: FilterInsightByCategoryDto) {
-		return this.insightService.getInsightByCategory(query.type);
+		const baseUrl = this.configService.get<string>("BASE_URL");
+		return this.insightService.getInsightByCategory(query.type, baseUrl);
 	}
 }
