@@ -139,7 +139,12 @@ export class InsightService {
 
 	async getAllInsight(baseUrl?: string) {
 		const insights = await this.prisma.insight.findMany({
-			include: {
+			select: {
+				id: true,
+				type: true,
+				featured: true,
+				title: true,
+				posterPath: true,
 				category: true,
 			},
 		});
@@ -153,7 +158,12 @@ export class InsightService {
 					equals: type,
 				},
 			},
-			include: {
+			select: {
+				id: true,
+				type: true,
+				featured: true,
+				title: true,
+				posterPath: true,
 				category: true,
 			},
 		});
@@ -170,7 +180,12 @@ export class InsightService {
 					},
 				},
 			},
-			include: {
+			select: {
+				id: true,
+				type: true,
+				featured: true,
+				title: true,
+				posterPath: true,
 				category: true,
 			},
 		});
