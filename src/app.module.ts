@@ -8,6 +8,7 @@ import { InsightModule } from "./modules/insight/insight.module";
 import { InsightCategoryModule } from "./modules/insight-category/insight-category.module";
 import { MainWebSSRModule } from "./modules/main-web-ssr/main-web-ssr.module";
 import { ServiceModule } from "./modules/services/service.module";
+import { StickerModule } from "./modules/stickers/sticker.module";
 
 const ENV = process.env.NODE_ENV;
 
@@ -24,7 +25,8 @@ const ENV = process.env.NODE_ENV;
 		InsightModule,
 		InsightCategoryModule,
 		MainWebSSRModule,
-		ServiceModule
+		ServiceModule,
+		StickerModule
 	],
 })
 export class AppModule {}

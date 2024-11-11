@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
-import * as moment from "moment-timezone";
+import { Controller, Get, Post, Body, Param, Delete } from "@nestjs/common";
 import { CreateServiceDto } from "./dto/create-service-dto";
 import { ServiceService } from "./service.service";
 import { FindServiceBySlugDto } from "./dto/params/get-service-by-slug-dto";
@@ -10,8 +9,8 @@ import { ConfigService } from "@nestjs/config";
 export class ServiceController {
 	constructor(
 		private readonly serviceService: ServiceService,
-		private readonly configService: ConfigService
-	) { }
+		private readonly configService: ConfigService,
+	) {}
 
 	@Post()
 	async create(@Body() dto: CreateServiceDto) {
@@ -33,5 +32,10 @@ export class ServiceController {
 	findServiceBySlug(@Param() params: FindServiceBySlugDto) {
 		const baseUrl = this.configService.get<string>("BASE_URL");
 		return this.serviceService.getDetailBySlug(params.lang, params.slug, baseUrl);
+	}
+
+	@Delete()
+	async clear() {
+		return this.serviceService.clear();
 	}
 }

@@ -16,6 +16,7 @@ import {
 import {
 	webSSRAppMenuBranchPreset,
 	webSSRHomeClientsPreset,
+	webSSRHomeFaqPreset,
 	webSSRHomeMainVideoPreset,
 	webSSRServiceMonthlyCollaborationsPreset,
 	webSSRServicePlatformsPreset,
@@ -98,6 +99,21 @@ export class MainWebSSRService {
 					create: {
 						...body,
 					},
+				},
+			},
+		});
+	}
+
+	async addFaqPreset() {
+		const mainSSR = await this.prisma.extendedClient.mainWebSSR.findFirstOrThrow({});
+
+		return this.prisma.extendedClient.mainWebSSR.update({
+			where: { id: mainSSR.id },
+			data: {
+				homeFaq: {
+					create: webSSRHomeFaqPreset.map(({ ...item }) => ({
+						...item,
+					})),
 				},
 			},
 		});
@@ -239,7 +255,7 @@ export class MainWebSSRService {
 
 	/* ===== GET MAIN WEB SSR WITH ALL DATA ===== */
 
-	async getMainWebSSR(baseUrl: string) {
+	async getMainWebSSR(baseUrl: string, lang: "en" | "id") {
 		const mainWebSSR = await this.prisma.extendedClient.mainWebSSR.findFirstOrThrow({
 			include: {
 				homeClients: true,
@@ -250,9 +266,9 @@ export class MainWebSSRService {
 				serviceMonthCollaboration: true,
 			},
 		});
-		
-		const { homeMainVideo, homeClients, ...otherData } = mainWebSSR;
-		
+
+		const { homeMainVideo, homeClients, homeFaq, ...otherData } = mainWebSSR;
+
 		let homeMainVideoData: HomeMainVideo | null = null;
 
 		// Modify home main video data.
@@ -261,23 +277,42 @@ export class MainWebSSRService {
 
 			homeMainVideoData = {
 				...homeVideoData,
-				videoUrl: `${baseUrl}${videoUrl}`
+				videoUrl: `${baseUrl}${videoUrl}`,
 			};
 		}
 
 		const homeClientsData = homeClients.map((item) => {
 			const { logoUrl, ...otherClientData } = item;
-			
+
+			const modifiedLogoUrl = (): string => {
+				if (logoUrl.startsWith("http") || logoUrl.startsWith("https")) {
+					return logoUrl;
+				}
+
+				return `${baseUrl}${logoUrl}`;
+			};
+
 			return {
 				...otherClientData,
-				logoUrl: `${baseUrl}${logoUrl}`
-			}
+				logoUrl: modifiedLogoUrl(),
+			};
+		});
+
+		const homeNewFaq = homeFaq.map((item) => {
+			const { question, questionIndonesian, answer, answerIndonesian, id } = item;
+
+			return {
+				id: id,
+				question: lang === "en" ? question : questionIndonesian,
+				answer: lang === "en" ? answer : answerIndonesian,
+			};
 		});
 
 		return {
 			...otherData,
 			homeMainVideo: homeMainVideoData,
 			homeClients: homeClientsData,
+			homeFaq: homeNewFaq,
 		};
 	}
 }

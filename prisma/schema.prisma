@@ -113,15 +113,16 @@ model ServiceDetailContentItem {
     description           String
     tags                  String[]
     imageUrl              String
+    mobileImageUrl        String?
     titleIndonesian       String[]               @default([])
     descriptionIndonesian String?
     detailContents        ServiceDetailContent[]
 }
 
-model ServiceDetailCalculation {
-    id                                        Int           @id @default(autoincrement())
-    title                                     Json          @default("[]")
-    form                                      Json          @default("{}")
+model ServiceDetailCalculationOld {
+    id                                        Int     @id @default(autoincrement())
+    title                                     Json    @default("[]")
+    form                                      Json    @default("{}")
     description                               String
     realTimeTitle                             String
     realTimeDescription                       String
@@ -130,8 +131,8 @@ model ServiceDetailCalculation {
     realTimeConsultablePrice                  String
     realTimeTermsAndConditionApply            String
     // Indonesian
-    titleIndonesian                           Json          @default("[]")
-    formIndonesian                            Json          @default("{}")
+    titleIndonesian                           Json    @default("[]")
+    formIndonesian                            Json    @default("{}")
     descriptionIndonesian                     String?
     realTimeTitleIndonesian                   String?
     realTimeDescriptionIndonesian             String?
@@ -140,8 +141,33 @@ model ServiceDetailCalculation {
     realTimeConsultablePriceIndonesian        String?
     realTimeTermsAndConditionApplyIndonesian  String?
     // Relation
-    serviceDetail                             ServiceDetail @relation(fields: [serviceDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    serviceDetailId                           Int           @unique
+    //serviceDetail                             ServiceDetail @relation(fields: [serviceDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    //serviceDetailId                           Int           @unique
+}
+
+model ServiceDetailCalculation {
+    id                                       Int           @id @default(autoincrement())
+    // Calculation
+    form                                     Json          @default("[]") // Fields detail on validation file.
+    formulas                                 Json          @default("[]") // Fields detail on validation file.
+    formResults                              Json          @default("[]") // Fields detail on validation file.
+    // Main
+    title                                    Json          @default("[]") // Fields detail on validation file.
+    description                              String
+    realTimeTitle                            String
+    realTimeDescription                      String
+    realTimeConsultablePrice                 String
+    realTimeTermsAndConditionApply           String
+    // Indonesian
+    titleIndonesian                          Json          @default("[]") // Fields detail on validation file.
+    descriptionIndonesian                    String        @default("")
+    realTimeTitleIndonesian                  String        @default("")
+    realTimeDescriptionIndonesian            String        @default("")
+    realTimeConsultablePriceIndonesian       String        @default("")
+    realTimeTermsAndConditionApplyIndonesian String        @default("")
+    // Relation
+    serviceDetail                            ServiceDetail @relation(fields: [serviceDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    serviceDetailId                          Int           @unique
 }
 
 enum ServiceTitleType {
@@ -257,6 +283,16 @@ enum FileStorageType {
     video
     image
     document
+}
+
+// =====================================
+// ============ Stickers ============
+// =====================================
+
+model Sticker {
+    id   Int    @id @default(autoincrement())
+    path String?
+    name String
 }
 
 // =====================================

@@ -27,6 +27,7 @@ async function bootstrap() {
 	
 	app.use(bodyParser.json({ limit: "100mb" }));
 	app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
+	app.disable("x-powered-by");
 
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
     app.useGlobalInterceptors(new ResponseInterceptor());

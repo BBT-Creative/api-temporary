@@ -35,15 +35,16 @@ export class FileStorageController {
 	@UseInterceptors(
 		FileInterceptor("file", {
 			storage: diskStorage({
-				destination: (req, file, callback) => {
+				destination: (req, _file, callback) => {
 					// Check if category exists in the request body, otherwise null
 					const category = req.body.category || null;
 
 					// Determine the base folder (if no category, place in /public/clouds directly)
 					const baseFolder = path.join(__dirname, "..", "..", "..", "public", "clouds");
-					const destinationPath = category
-						? path.join(baseFolder, category) // If category exists, create a subfolder
-						: baseFolder; // Otherwise, place file directly in /public/clouds
+					const destinationPath =
+						category !== null
+							? path.join(baseFolder, category) // If category exists, create a subfolder
+							: baseFolder; // Otherwise, place file directly in /public/clouds
 
 					// Ensure the folder exists
 					if (!fs.existsSync(destinationPath)) {
@@ -92,8 +93,9 @@ export class FileStorageController {
 		const category = req.body.category || null;
 		const fileType = file.mimetype.startsWith("image/") ? "image" : file.mimetype.startsWith("video/") ? "video" : "document";
 
-		const filePath = category ? `/clouds/${category}/${file.filename}` : `/clouds/${file.filename}`;
-		const fullUrl = category ? `${baseUrl}/clouds/${category}/${file.filename}` : `${baseUrl}/clouds/${file.filename}`;
+		const filePath = category !== null ? `/clouds/${category}/${file.filename}` : `/clouds/${file.filename}`;
+		const fullUrl =
+			category !== null ? `${baseUrl}/clouds/${category}/${file.filename}` : `${baseUrl}/clouds/${file.filename}`;
 
 		return this.fileStorageService.saveFile({
 			path: filePath,
@@ -109,14 +111,14 @@ export class FileStorageController {
 	@UseInterceptors(
 		FilesInterceptor("files", 10, {
 			storage: diskStorage({
-				destination: (req, file, callback) => {
+				destination: (req, _file, callback) => {
 					const category = req.body.category || null;
 
 					// Define base folder path (/public/clouds)
 					const baseFolder = path.join(__dirname, "..", "..", "..", "public", "clouds");
 
 					// If a category is provided, create a subfolder. Otherwise, use base folder.
-					const destinationPath = category ? path.join(baseFolder, category) : baseFolder;
+					const destinationPath = category !== null ? path.join(baseFolder, category) : baseFolder;
 
 					// Ensure directory exists
 					if (!fs.existsSync(destinationPath)) {
@@ -166,10 +168,9 @@ export class FileStorageController {
 						? "video"
 						: "document";
 
-				const filePath = category ? `/clouds/${category}/${file.filename}` : `/clouds/${file.filename}`;
-				const fullUrl = category
-					? `${baseUrl}/clouds/${category}/${file.filename}`
-					: `${baseUrl}/clouds/${file.filename}`;
+				const filePath = category !== null ? `/clouds/${category}/${file.filename}` : `/clouds/${file.filename}`;
+				const fullUrl =
+					category !== null ? `${baseUrl}/clouds/${category}/${file.filename}` : `${baseUrl}/clouds/${file.filename}`;
 
 				return this.fileStorageService.saveFile({
 					path: filePath,

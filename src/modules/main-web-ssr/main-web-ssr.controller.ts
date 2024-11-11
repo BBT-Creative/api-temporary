@@ -14,13 +14,14 @@ import {
 	MainWebSSRUpdateServicePlatformsDto,
 } from "./dto/main-web-ssr-dto";
 import { ConfigService } from "@nestjs/config";
+import { GetMainWebSSRDto } from "./dto/get-web-main-ssr-dto";
 
 @Controller("mainwebssr")
 export class MainWebSSRController {
 	constructor(
 		private readonly service: MainWebSSRService,
-		private readonly configService: ConfigService
-	) { }
+		private readonly configService: ConfigService,
+	) {}
 
 	@Post("preset")
 	async preset() {
@@ -44,6 +45,11 @@ export class MainWebSSRController {
 	@Post("home-faq")
 	async addFaq(@Body() body: MainWebSSRAddFaqDto) {
 		return this.service.addFaq(body);
+	}
+
+	@Post("home-faq-preset")
+	async addFaqPreset() {
+		return this.service.addFaqPreset();
 	}
 
 	@Post("appmenu-branch")
@@ -93,10 +99,10 @@ export class MainWebSSRController {
 
 	/* ===== GET MAIN WEB SSR WITH ALL DATA ===== */
 
-	@Get()
-	async getMainWebSSR() {
+	@Get(":lang")
+	async getMainWebSSR(@Param() param: GetMainWebSSRDto) {
 		const baseUrl = this.configService.get<string>("BASE_URL") || "";
-		return this.service.getMainWebSSR(baseUrl);
+		return this.service.getMainWebSSR(baseUrl, param.lang);
 	}
 
 	/* ===== REMOVE FROM LIST HANDLER ===== */

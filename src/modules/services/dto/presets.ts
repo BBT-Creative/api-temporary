@@ -1,51 +1,3 @@
-export type ServiceDefault = {
-	id: number;
-	title: string;
-	description: string;
-	tags: string[];
-	slug: string;
-	href: string;
-	videoUrl: string;
-	detail: {
-		id?: number;
-		serviceId?: number;
-		backgroundColor?: string;
-		imageUrl?: string;
-		flagIconPath?: string;
-		flagTitle?: string;
-		pageTitles?: {
-			id?: number;
-			type?: "plain" | "styled";
-			text?: string;
-			serviceDetailId?: number | null;
-		}[];
-		calculation?: {
-			id?: number;
-			title?: string[];
-			form?: {};
-			description?: string;
-			realTimeTitle?: string;
-			realTimeDescription?: string;
-			realTimeEstimatedPriceTextDesc?: string;
-			realTimeEstimatedResultTextDesc?: string;
-			realTimeConsultablePrice?: string;
-			realTimeTermsAndConditionApply?: string;
-		};
-		contents?: {
-			id: number;
-			title: string;
-			description: string;
-			serviceItems: {
-				id: number;
-				title: string[];
-				description: string;
-				tags: string[];
-				imageUrl: string;
-			}[];
-		}[];
-	} | null;
-};
-
 export type ServiceDefaultPreset = {
 	title: string;
 	description: string;
@@ -65,26 +17,62 @@ type ServiceDetailDefaultPreset = {
 		type: "plain" | "styled";
 		text: string;
 	}[];
-	calculation?: {
+	calculation: {
 		title: { type: string; text: string }[];
 		titleIndonesian: { type: string; text: string }[];
-		form: {};
 		description: string;
 		realTimeTitle: string;
 		realTimeDescription: string;
-		realTimeEstimatedPriceTextDesc: string;
-		realTimeEstimatedResultTextDesc: string;
 		realTimeConsultablePrice: string;
 		realTimeTermsAndConditionApply: string;
-		formIndonesian: {};
 		descriptionIndonesian: string;
 		realTimeTitleIndonesian: string;
 		realTimeDescriptionIndonesian: string;
-		realTimeEstimatedPriceTextDescIndonesian: string;
-		realTimeEstimatedResultTextDescIndonesian: string;
 		realTimeConsultablePriceIndonesian: string;
 		realTimeTermsAndConditionApplyIndonesian: string;
-	};
+		form?: {
+			fieldId: string;
+			labelId: false | string;
+			title: false | string;
+			placeholder: false | string;
+			field: "TextField" | "Autocomplete" | "Select" | "RadioGroup" | "NumberFormat" | "DateTimePicker";
+			type: string;
+			defaultValue: string | number | boolean | Array<any> | string[] | number[] | Record<any, any> | object | null;
+			min: false | number;
+			max: false | number;
+			step: false | number;
+			prefix: false | string;
+			isCurrency: boolean;
+			options: false | Array<any>;
+			label: false | string;
+			minRows: number;
+			maxRows: false | number;
+			multiline: boolean;
+			displayEmpty: boolean;
+			required: boolean;
+			multiple: boolean;
+		}[];
+		formulas?: {
+			name: string;
+			formula: string;
+			conditions: {
+				fieldId: string; // The field whose value is being compared
+				comparisonType: "range" | "equals" | "greaterThan" | "lessThan"; // Type of comparison
+				value: number | [number, number]; // The value or range to compare against
+				multiplier?: number;
+			}[];
+		}[];
+		formResults?: {
+			name: string;
+			type: "currency" | "number";
+			defaultValue: string;
+			title: string;
+			description: string;
+			titleIndonesian: string;
+			descriptionIndonesian: string;
+			isEstimated: boolean;
+		}[];
+	} | null;
 	contents: {
 		title: string;
 		titleIndonesian: string;
@@ -97,6 +85,7 @@ type ServiceDetailDefaultPreset = {
 			descriptionIndonesian: string;
 			tags: string[];
 			imageUrl: string;
+			mobileImageUrl: string | null;
 		}[];
 	};
 };
@@ -131,62 +120,268 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 					{ type: "styled", text: "BBT Creative Studio" },
 					{ type: "plain", text: "Calculation" },
 				],
-				form: {
-					totalHoursOfLiveStreamDay: {
+				form: [
+					{
+						fieldId: "email_field",
+						labelId: false,
+						title: "Email",
+						placeholder: "Input Email",
+						field: "TextField",
+						type: "email",
+						defaultValue: "",
+						min: false,
+						max: false,
+						step: false,
+						prefix: false,
+						isCurrency: false,
+						options: false,
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: true,
+						multiple: false,
+					},
+					{
+						fieldId: "live_platform_field",
+						labelId: false,
+						title: "Live Platform",
+						placeholder: "Choose Live Platfrom",
+						field: "Autocomplete",
+						type: "text",
+						defaultValue: [],
+						min: false,
+						max: false,
+						step: false,
+						prefix: false,
+						isCurrency: false,
+						options: ["Tiktok", "Lazada", "Tokopedia", "Shopee"],
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: true,
+						multiple: true,
+					},
+					{
+						fieldId: "month_of_collaboration_field",
+						labelId: false,
+						title: "Month Of Collaboration",
+						placeholder: "Select How Many Month Of Collab",
+						field: "Select",
+						type: "text",
+						defaultValue: "",
+						min: false,
+						max: false,
+						step: false,
+						prefix: false,
+						isCurrency: false,
+						options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: true,
+						required: true,
+						multiple: false,
+					},
+					{
+						fieldId: "total_hour_input",
+						labelId: false,
 						title: "Total Hours of Live Streaming/Day",
 						placeholder: "Input Live Stream Hours Per day",
+						field: "TextField",
+						type: "number",
+						defaultValue: "2",
+						min: 2,
+						max: 24,
+						step: 1,
+						prefix: false,
+						isCurrency: false,
+						options: false,
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: true,
+						multiple: false,
 					},
-					livePlatforms: {
-						title: "Live Platform",
-						placeholder: "Choose Live Platforms",
+					{
+						fieldId: "brand-name-input",
+						labelId: false,
+						title: "Brand Name",
+						placeholder: "Input Brand Name",
+						field: "TextField",
+						type: "text",
+						defaultValue: "",
+						min: false,
+						max: false,
+						step: false,
+						prefix: false,
+						isCurrency: false,
+						options: false,
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: false,
+						multiple: false,
 					},
-					monthOfCollaboration: {
-						title: "How Many Months of Collaboration?",
-						placeholder: "Select How Many Month Of Collab",
+					{
+						fieldId: "whatsapp-number-input",
+						labelId: false,
+						title: "Whatsapp No.",
+						placeholder: "Input Whatsapp Number",
+						field: "TextField",
+						type: "tel",
+						defaultValue: "",
+						min: false,
+						max: false,
+						step: false,
+						prefix: "+62",
+						isCurrency: false,
+						options: false,
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: true,
+						multiple: false,
 					},
-					email: {
-						title: "Email Address",
-						placeholder: "Input Email...",
+					{
+						fieldId: "tiktok-brand-name-input",
+						labelId: false,
+						title: "Tiktok Brand Name",
+						placeholder: "Input Tiktok Brand Name",
+						field: "TextField",
+						type: "text",
+						defaultValue: "",
+						min: false,
+						max: false,
+						step: false,
+						prefix: "@",
+						isCurrency: false,
+						options: false,
+						label: false,
+						minRows: 1,
+						maxRows: false,
+						multiline: false,
+						displayEmpty: false,
+						required: true,
+						multiple: false,
 					},
-				},
+				],
+				formulas: [
+					{
+						name: "pricePerMonth",
+						formula: "total_hour_input * live_platform_field.length * 30 * multiplier",
+						conditions: [
+							{
+								fieldId: "month_of_collaboration_field",
+								comparisonType: "range",
+								value: [1, 3],
+								multiplier: 200000,
+							},
+							{
+								fieldId: "month_of_collaboration_field",
+								comparisonType: "range",
+								value: [4, 6],
+								multiplier: 170000,
+							},
+							{
+								fieldId: "month_of_collaboration_field",
+								comparisonType: "range",
+								value: [7, 12],
+								multiplier: 150000,
+							},
+						],
+					},
+					{
+						name: "estimatedViewers",
+						formula: "total_hour_input * multiplier",
+						conditions: [
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [1, 4],
+								multiplier: 100,
+							},
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [5, 8],
+								multiplier: 200,
+							},
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [9, 12],
+								multiplier: 300,
+							},
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [13, 16],
+								multiplier: 400,
+							},
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [17, 20],
+								multiplier: 500,
+							},
+							{
+								fieldId: "total_hour_input",
+								comparisonType: "range",
+								value: [21, 24],
+								multiplier: 600,
+							},
+						],
+					},
+				],
+				formResults: [
+					{
+						name: "pricePerMonth",
+						title: "Estimated Price",
+						type: "currency",
+						titleIndonesian: "Perkiraan Harga",
+						defaultValue: "0",
+						description: "Estimated Value For Price",
+						descriptionIndonesian: "Perkiraan Value Untuk Harga",
+						isEstimated: true,
+					},
+					{
+						name: "estimatedViewers",
+						type: "number",
+						title: "Estimated Viewers",
+						titleIndonesian: "Perkiraan Viewers",
+						defaultValue: "0",
+						description: "Estimated Value For Viewers",
+						descriptionIndonesian: "Perkiraan Value Untuk Viewers",
+						isEstimated: true,
+					},
+				],
 				description:
 					"Have a plan to use BBT Creative Studio services? Let's calculate your spend, and get real-time estimation price.",
 				realTimeTitle: "Real-Time Estimation Price",
 				realTimeDescription:
 					"Use this BBT monthly calculator to estimate the budget you have for running a BBT Project. The following prices may be higher or lower depending on the duration you want for your live streaming project. note: Price is calculated is monthly price based. Viewer or Result is calculated per Live per Day based. Price and viewer or result is <strong>estimated</strong> and not fixed number.",
-				realTimeEstimatedPriceTextDesc: "Estimated Price",
-				realTimeEstimatedResultTextDesc: "Estimated Viewer",
 				realTimeConsultablePrice: "Prices are consultable",
 				realTimeTermsAndConditionApply: "Terms and conditions apply",
 				titleIndonesian: [
 					{ type: "plain", text: "Kalkulator" },
 					{ type: "styled", text: "BBT Creative Studio" },
 				],
-				formIndonesian: {
-					totalHoursOfLiveStreamDay: {
-						title: "Total Jam Live Stream/Hari",
-						placeholder: "Masukan Total Jam Live Streaming Per Hari",
-					},
-					livePlatforms: {
-						title: "Platform Live Stream",
-						placeholder: "Pilih Platform Live Stream",
-					},
-					monthOfCollaboration: {
-						title: "Berapa Bulan Kolaborasi?",
-						placeholder: "Pilih Berapa Bulan Kolaborasi",
-					},
-					email: {
-						title: "Alamat Email",
-						placeholder: "Masukan Alamat Email",
-					},
-				},
 				descriptionIndonesian:
 					"Punya rencana untuk menggunakan layanan BBT Creative Studio? Mari hitung pengeluaran Anda, dan dapatkan estimasi harga secara real-time.",
 				realTimeTitleIndonesian: "Real-Time Estimasi Harga",
 				realTimeDescriptionIndonesian:
 					"Gunakan kalkulator bulanan BBT ini untuk memperkirakan anggaran yang Anda miliki untuk menjalankan Proyek BBT. Harga berikut mungkin lebih tinggi atau lebih rendah tergantung pada durasi yang Anda inginkan untuk proyek Live Stream. Catatan: Harga dihitung berdasarkan harga bulanan. Pemirsa atau Hasil dihitung per Live per Hari. Harga dan viewers atau hasil adalah <strong>perkiraan</strong> dan bukan angka tetap.",
-				realTimeEstimatedPriceTextDescIndonesian: "Perkiraan Harga",
-				realTimeEstimatedResultTextDescIndonesian: "Perkiraan Viewer",
 				realTimeConsultablePriceIndonesian: "Harga dapat dikonsultasikan",
 				realTimeTermsAndConditionApplyIndonesian: "Syarat dan ketentuan berlaku",
 			},
@@ -212,6 +407,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Developing Content & Strategy",
 						],
 						imageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-1.png",
+						mobileImageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-1-mobile.png",
 					},
 					{
 						title: ["Offline", "Host/MC"],
@@ -222,6 +418,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami menghadirkan sentuhan profesionalisme, pesona, dan karisma ke acara Anda sebagai Offline Master of Ceremonies yang berdedikasi. Dengan kepekaan terhadap waktu dan kemampuan untuk melibatkan audiens, kami memastikan acara Anda berjalan lancar dan meninggalkan kesan yang menarik pada tamu Anda.",
 						tags: ["Grand Opening", "Wedding", "Product Launching"],
 						imageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-2.png",
+						mobileImageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-2-mobile.png",
 					},
 					{
 						title: ["Photography &", "Videography"],
@@ -232,6 +429,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Di BBT Studio, kami berdedikasi untuk mengabadikan momen paling berharga Anda dengan kejelasan dan kreativitas luar biasa. Baik ketika Anda mencari foto yang menakjubkan, video yang menarik, atau kombinasi dari keduanya, kami menawarkan serangkaian layanan yang disesuaikan untuk memenuhi kebutuhan Anda.",
 						tags: ["Products", "Event", "Podcast", "Commercial", "Profiling"],
 						imageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-3.png",
+						mobileImageUrl: "/clouds/serviceitems/bbt-studio/bbt-studio-serviceitems-3-mobile.png",
 					},
 				],
 			},
@@ -260,7 +458,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 			],
 			flagIconPath: "/clouds/flagicon/starPerson.png",
 			flagTitle: "BISA BIKIN FAMOUS MGMT",
-			calculation: undefined,
+			calculation: null,
 			contents: {
 				title: "Welcome to BBT Studio!",
 				description:
@@ -278,6 +476,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami membantu brand secara efektif memanfaatkan kekuatan influencer untuk menjangkau audiens baru, membangun kepercayaan, dan mendorong konversi.",
 						tags: ["Meta", "Youtube", "Tiktok KOL Management for Campaign", "Influencer Outreach"],
 						imageUrl: "/clouds/serviceitems/bbf/bbf-serviceitems-1.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["Affiliate", "Trainee KOL"],
@@ -294,6 +493,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Affiliate Relationship Management",
 						],
 						imageUrl: "/clouds/serviceitems/bbf/bbf-serviceitems-2.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["Brand", "Activation"],
@@ -304,6 +504,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami berspesialisasi dalam menghidupkan brand Anda melalui strategi brand activation yang dinamis dan berdampak. Layanan kami dirancang untuk melibatkan audiens Anda, meningkatkan brand awareness, dan mendorong interaksi yang bermakna dengan target pasar Anda.",
 						tags: ["Offline Campaign Event", "Online Campaign Event"],
 						imageUrl: "/clouds/serviceitems/bbf/bbf-serviceitems-3.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["BBT", "Army"],
@@ -319,6 +520,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Lebih Dari 170.000 Komunitas",
 						],
 						imageUrl: "/clouds/serviceitems/bbf/bbf-serviceitems-4.png",
+						mobileImageUrl: null,
 					},
 				],
 			},
@@ -348,7 +550,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 			],
 			flagIconPath: "/clouds/flagicon/duck.png",
 			flagTitle: "BISA BIKIN KONTEN CREATIVE",
-			calculation: undefined,
+			calculation: null,
 			contents: {
 				title: "Welcome to BBK Creative!",
 				description:
@@ -366,6 +568,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Social Media Management bukan hanya tentang memelihara profil; tetapi tentang melibatkan secara aktif dengan audiens Anda, mendorong pertumbuhan bisnis, dan memelihara hubungan jangka panjang dengan pelanggan di dunia yang semakin digital.",
 						tags: ["Meta", "X (Formerly Twitter)"],
 						imageUrl: "/clouds/serviceitems/bbk/bbk-serviceitems-1.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["Creative", "Content"],
@@ -376,6 +579,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"BBK Creative berspesialisasi dalam menciptakan konten yang menarik dan inovatif yang menarik perhatian dan mendorong keterlibatan. Dari visual yang hidup hingga materi tertulis yang menarik, layanan konten kreatif kami dirancang untuk meningkatkan brand Anda, mengomunikasikan pesan Anda, dan terhubung dengan audiens Anda.",
 						tags: ["Tiktok", "Instagram Reels", "Youtube"],
 						imageUrl: "/clouds/serviceitems/bbk/bbk-serviceitems-2.png",
+						mobileImageUrl: null,
 					},
 				],
 			},
@@ -404,7 +608,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 			],
 			flagIconPath: "/clouds/flagicon/frog.png",
 			flagTitle: "BISA BIKIN MARKETING DIGITAL",
-			calculation: undefined,
+			calculation: null,
 			contents: {
 				title: "Welocome to BBM Digital!",
 				description:
@@ -422,6 +626,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Digital adversting membantu Anda meningkatkan visibilitas merek, meningkatkan traffic situs web, menghasilkan prospek, dan pada akhirnya mencapai target pemasaran dalam dunia digital yang kompetitif.",
 						tags: ["Meta For Business", "Google AdSense", "Tiktok Ads"],
 						imageUrl: "/clouds/serviceitems/bbm/bbm-serviceitems-1.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["SEO", "Optimization"],
@@ -432,6 +637,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"BBM Digital didedikasikan untuk meningkatkan visibilitas online Anda dan traffic organik ke situs web Anda melalui strategi pengoptimalan SEO yang efektif. Tujuan kami adalah membantu bisnis Anda mencapai peringkat mesin pencari yang lebih tinggi, meningkatkan visibilitas, dan menarik prospek yang berkualitas.",
 						tags: ["On-page", "Off-page", "Technical", "Local"],
 						imageUrl: "/clouds/serviceitems/bbm/bbm-serviceitems-2.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["E-Commerce", "Ads"],
@@ -442,6 +648,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami berspesialisasi dalam membuat dan mengelola kampanye periklanan eCommerce efektif yang meningkatkan traffic, meningkatkan penjualan, dan memaksimalkan ROI. Pendekatan kami yang disesuaikan memastikan produk Anda menjangkau audiens yang tepat dengan iklan menarik yang menghasilkan konversi.",
 						tags: ["Shopee", "Tiktok"],
 						imageUrl: "/clouds/serviceitems/bbm/bbm-serviceitems-3.png",
+						mobileImageUrl: null,
 					},
 				],
 			},
@@ -451,9 +658,9 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 		title: "BBW Solutions.",
 		description:
 			"We're dedicated to bringing your digital vision to life with our expertise in web development, mobile apps, UI/UX design, and software implementation.",
-		titleIndonesian: "BBM Digital.",
+		titleIndonesian: "BBW Solutions.",
 		descriptionIndonesian:
-			"BBM Digital berspesialisasi dalam memaksimalkan dampak online Anda dengan layanan digital komprehensif kami.",
+			"Kami berdedikasi untuk mewujudkan visi digital Anda dengan keahlian kami dalam pengembangan web, aplikasi mobile, desain UI/UX, dan implementasi Software.",
 		tags: ["Web Development", "Mobile Apps Development", "Software Impl", "UI/UX"],
 		videoUrl: "/clouds/mov/bisa-bikin-web.mp4",
 		detail: {
@@ -471,7 +678,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 			],
 			flagIconPath: "/clouds/flagicon/code.png",
 			flagTitle: "BISA BIKIN WEBSITE & IT SOLUTION",
-			calculation: undefined,
+			calculation: null,
 			contents: {
 				title: "Welcome to BBW Solutions!",
 				description:
@@ -489,6 +696,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"BBW Solution didedikasikan untuk membangun situs web luar biasa yang tidak hanya tampak hebat tetapi juga berfungsi dengan lancar. Baik Anda memerlukan situs web baru, desain ulang, atau maintenance berkelanjutan, layanan pengembangan web kami disesuaikan untuk memenuhi kebutuhan spesifik Anda dan membantu bisnis Anda berkembang secara online.",
 						tags: ["Wordpress", "Native", "Hybrid"],
 						imageUrl: "/clouds/serviceitems/bbw/bbw-serviceitems-1.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["Mobile", "Apps"],
@@ -499,6 +707,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami berspesialisasi dalam menciptakan aplikasi mobile yang inovatif dan user-friendly yang mendorong keterlibatan dan memberikan hasil. Baik Anda memerlukan aplikasi native, cross-platform, atau maintenance berkelanjutan, layanan pengembangan aplikasi mobile kami dirancang untuk memenuhi kebutuhan Anda.",
 						tags: ["Android", "iOS"],
 						imageUrl: "/clouds/serviceitems/bbw/bbw-serviceitems-2.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["UI/", "UX"],
@@ -509,6 +718,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Layanan desain UI/UX kami difokuskan pada pembuatan desain yang melibatkan pengguna, meningkatkan kegunaan, dan mendorong kesuksesan bisnis Anda.",
 						tags: ["UI", "UX", "Prototype"],
 						imageUrl: "/clouds/serviceitems/bbw/bbw-serviceitems-3.png",
+						mobileImageUrl: null,
 					},
 					{
 						title: ["Software", "Implementation"],
@@ -519,6 +729,7 @@ export const servicesPresets: ServiceDefaultPreset[] = [
 							"Kami menyediakan layanan implementasi software komprehensif yang dirancang untuk membantu bisnis mengintegrasikan dan memaksimalkan software mereka dengan lancar. Tujuan kami adalah memastikan bahwa software Anda diterapkan, dikonfigurasi, dan dioptimalkan secara efektif untuk memenuhi kebutuhan spesifik Anda dan memberikan hasil yang terukur.",
 						tags: ["Whatsapp for Business", "Adobe Creative Cloud"],
 						imageUrl: "/clouds/serviceitems/bbw/bbw-serviceitems-4.png",
+						mobileImageUrl: null,
 					},
 				],
 			},

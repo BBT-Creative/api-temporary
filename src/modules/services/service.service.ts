@@ -1,15 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateServiceDto } from "./dto/create-service-dto";
+import { Service } from "./service.interface";
 import { servicesPresets } from "./dto/presets";
 import { Prisma } from "@prisma/client";
-import { Service } from "./service.interface";
 
 @Injectable()
 export class ServiceService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async preset() {
+		// Clear current
+		await this.prisma.service.deleteMany({});
+
+		// Add new
 		return Promise.all(
 			servicesPresets.map((body) => {
 				const { title, description, detail, titleIndonesian, descriptionIndonesian, tags, videoUrl } = body;
@@ -69,23 +73,18 @@ export class ServiceService {
 											description: calculation.description,
 											realTimeTitle: calculation.realTimeTitle,
 											realTimeDescription: calculation.realTimeDescription,
-											realTimeEstimatedPriceTextDesc: calculation.realTimeEstimatedPriceTextDesc,
-											realTimeEstimatedResultTextDesc: calculation.realTimeEstimatedResultTextDesc,
 											realTimeConsultablePrice: calculation.realTimeConsultablePrice,
 											realTimeTermsAndConditionApply: calculation.realTimeTermsAndConditionApply,
-											form: calculation.form,
 											titleIndonesian: calculation.titleIndonesian,
 											descriptionIndonesian: calculation.descriptionIndonesian,
 											realTimeTitleIndonesian: calculation.realTimeTitleIndonesian,
 											realTimeDescriptionIndonesian: calculation.realTimeDescriptionIndonesian,
-											realTimeEstimatedPriceTextDescIndonesian:
-												calculation.realTimeEstimatedPriceTextDescIndonesian,
-											realTimeEstimatedResultTextDescIndonesian:
-												calculation.realTimeEstimatedResultTextDescIndonesian,
 											realTimeConsultablePriceIndonesian: calculation.realTimeConsultablePriceIndonesian,
 											realTimeTermsAndConditionApplyIndonesian:
 												calculation.realTimeTermsAndConditionApplyIndonesian,
-											formIndonesian: calculation.formIndonesian,
+											form: calculation.form,
+											formulas: calculation.formulas,
+											formResults: calculation.formResults,
 										},
 									},
 								}),
@@ -154,23 +153,18 @@ export class ServiceService {
 									description: calculation.description,
 									realTimeTitle: calculation.realTimeTitle,
 									realTimeDescription: calculation.realTimeDescription,
-									realTimeEstimatedPriceTextDesc: calculation.realTimeEstimatedPriceTextDesc,
-									realTimeEstimatedResultTextDesc: calculation.realTimeEstimatedResultTextDesc,
 									realTimeConsultablePrice: calculation.realTimeConsultablePrice,
 									realTimeTermsAndConditionApply: calculation.realTimeTermsAndConditionApply,
-									form: calculation.form,
-									titleIndonesian: calculation.titleIndonesian,
-									descriptionIndonesian: calculation.descriptionIndonesian,
-									realTimeTitleIndonesian: calculation.realTimeTitleIndonesian,
-									realTimeDescriptionIndonesian: calculation.realTimeDescriptionIndonesian,
-									realTimeEstimatedPriceTextDescIndonesian:
-										calculation.realTimeEstimatedPriceTextDescIndonesian,
-									realTimeEstimatedResultTextDescIndonesian:
-										calculation.realTimeEstimatedResultTextDescIndonesian,
-									realTimeConsultablePriceIndonesian: calculation.realTimeConsultablePriceIndonesian,
+									titleIndonesian: calculation.titleIndonesian || [],
+									descriptionIndonesian: calculation.descriptionIndonesian || "",
+									realTimeTitleIndonesian: calculation.realTimeTitleIndonesian || "",
+									realTimeDescriptionIndonesian: calculation.realTimeDescriptionIndonesian || "",
+									realTimeConsultablePriceIndonesian: calculation.realTimeConsultablePriceIndonesian || "",
 									realTimeTermsAndConditionApplyIndonesian:
-										calculation.realTimeTermsAndConditionApplyIndonesian,
-									formIndonesian: calculation.formIndonesian,
+										calculation.realTimeTermsAndConditionApplyIndonesian || "",
+									form: calculation.form,
+									formulas: calculation.formulas,
+									formResults: calculation.formResults,
 								},
 							},
 						}),
@@ -203,7 +197,7 @@ export class ServiceService {
 	}
 
 	async getDetailBySlug(lang: "en" | "id", slug: string, baseUrl?: string) {
-		const service = await this.prisma.service.findFirstOrThrow({
+		const service = await this.prisma.extendedClient.service.findFirstOrThrow({
 			where: {
 				slug: {
 					equals: slug,
@@ -226,6 +220,10 @@ export class ServiceService {
 		return this.transformServiceData(service, lang, baseUrl);
 	}
 
+	async clear() {
+		return this.prisma.service.deleteMany({});
+	}
+
 	/* Transform some data like URL */
 	private transformServiceData(service: Service, lang: "en" | "id", baseUrl?: string) {
 		return {
@@ -243,50 +241,44 @@ export class ServiceService {
 				flagIconPath: `${baseUrl}${service.detail?.flagIconPath}`,
 				flagTitle: service?.detail?.flagTitle,
 				pageTitles: service?.detail?.pageTitles,
-				calculation: {
-					id: service.detail?.calculation?.id,
-					title:
-						lang === "id"
-							? service.detail?.calculation?.titleIndonesian || service.detail?.calculation?.title
-							: service.detail?.calculation?.title,
-					form:
-						lang === "id"
-							? service.detail?.calculation?.formIndonesian || service.detail?.calculation?.form
-							: service.detail?.calculation?.form,
-					description:
-						lang === "id"
-							? service.detail?.calculation?.descriptionIndonesian || service.detail?.calculation?.description
-							: service.detail?.calculation?.description,
-					realTimeTitle:
-						lang === "id"
-							? service.detail?.calculation?.realTimeTitleIndonesian || service.detail?.calculation?.realTimeTitle
-							: service.detail?.calculation?.realTimeTitle,
-					realTimeDescription:
-						lang === "id"
-							? service.detail?.calculation?.realTimeDescriptionIndonesian ||
-								service.detail?.calculation?.realTimeDescription
-							: service.detail?.calculation?.realTimeDescription,
-					realTimeEstimatedPriceTextDesc:
-						lang === "id"
-							? service.detail?.calculation?.realTimeEstimatedPriceTextDescIndonesian ||
-								service.detail?.calculation?.realTimeEstimatedPriceTextDesc
-							: service.detail?.calculation?.realTimeEstimatedPriceTextDesc,
-					realTimeEstimatedResultTextDesc:
-						lang === "id"
-							? service.detail?.calculation?.realTimeEstimatedResultTextDescIndonesian ||
-								service.detail?.calculation?.realTimeDescription
-							: service.detail?.calculation?.realTimeDescription,
-					realTimeConsultablePrice:
-						lang === "id"
-							? service.detail?.calculation?.realTimeConsultablePriceIndonesian ||
-								service.detail?.calculation?.realTimeConsultablePrice
-							: service.detail?.calculation?.realTimeConsultablePrice,
-					realTimeTermsAndConditionApply:
-						lang === "id"
-							? service.detail?.calculation?.realTimeTermsAndConditionApplyIndonesian ||
-								service.detail?.calculation?.realTimeTermsAndConditionApply
-							: service.detail?.calculation?.realTimeTermsAndConditionApply,
-				},
+				calculation:
+					service.detail?.calculation !== null
+						? {
+								id: service.detail?.calculation?.id,
+								title:
+									lang === "id"
+										? service.detail?.calculation?.titleIndonesian || service.detail?.calculation?.title
+										: service.detail?.calculation?.title,
+								description:
+									lang === "id"
+										? service.detail?.calculation?.descriptionIndonesian ||
+											service.detail?.calculation?.description
+										: service.detail?.calculation?.description,
+								realTimeTitle:
+									lang === "id"
+										? service.detail?.calculation?.realTimeTitleIndonesian ||
+											service.detail?.calculation?.realTimeTitle
+										: service.detail?.calculation?.realTimeTitle,
+								realTimeDescription:
+									lang === "id"
+										? service.detail?.calculation?.realTimeDescriptionIndonesian ||
+											service.detail?.calculation?.realTimeDescription
+										: service.detail?.calculation?.realTimeDescription,
+								realTimeConsultablePrice:
+									lang === "id"
+										? service.detail?.calculation?.realTimeConsultablePriceIndonesian ||
+											service.detail?.calculation?.realTimeConsultablePrice
+										: service.detail?.calculation?.realTimeConsultablePrice,
+								realTimeTermsAndConditionApply:
+									lang === "id"
+										? service.detail?.calculation?.realTimeTermsAndConditionApplyIndonesian ||
+											service.detail?.calculation?.realTimeTermsAndConditionApply
+										: service.detail?.calculation?.realTimeTermsAndConditionApply,
+								form: service.detail?.calculation?.form,
+								formulas: service.detail?.calculation?.formulas,
+								formResults: service.detail?.calculation?.formResults,
+							}
+						: null,
 				contents: {
 					id: service?.detail?.id,
 					title:
@@ -306,6 +298,7 @@ export class ServiceService {
 								: serviceItem.description,
 						tags: serviceItem.tags,
 						imageUrl: `${baseUrl}${serviceItem.imageUrl}`,
+						mobileImageUrl: serviceItem.mobileImageUrl ? `${baseUrl}${serviceItem.mobileImageUrl}` : null,
 					})),
 				},
 			},

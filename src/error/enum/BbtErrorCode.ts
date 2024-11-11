@@ -33,9 +33,10 @@ enum ValidationErrorCode {
 	FIELD_MUST_BE_INT = "ER:40013",
 	FIELD_MUST_BE_LATITUDE = "ER:40014",
 	FIELD_MUST_BE_LONGITUDE = "ER:40015",
-	PRODUCT_VARIANT_REQUIRED_WHEN_IS_VARIANT_PRODUCT = "ER:40016",
-	PARENT_PRODUCT_REQUIRED_WHEN_IS_VARIANT_PRODUCT = "ER:40017",
-	PRODUCT_REQUIRED_WHEN_IS_NOT_VARIANT_PRODUCT = "ER:40018",
+	FIELD_MUST_BE_STRING_OR_FALSE = "ER:40016",
+	FIELD_MUST_BE_NUMBER_OR_FALSE = "ER:40017",
+	FIELD_MUST_BE_ARRAY_OR_FALSE = "ER:40018",
+	FIELD_MUST_BE_NUMBER_OR_NUMBER_COMPARISON = "ER:40019",
 }
 
 enum SchemaErrorCode {
@@ -53,7 +54,7 @@ export const BbtErrorCode = {
 	schemaError: SchemaErrorCode,
 	duplicateUniqueConstraintError: DuplicateUniqueConstraintErrorCode,
 	validationError: ValidationErrorCode,
-	otherError: OtherErrorCode
-}
+	otherError: OtherErrorCode,
+};
 
 export type BbtErrorCode = typeof BbtErrorCode;

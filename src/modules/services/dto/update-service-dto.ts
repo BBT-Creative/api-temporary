@@ -1,28 +1,19 @@
 import { Type } from "class-transformer";
-import {
-	ArrayMaxSize,
-	ArrayMinSize,
-	IsArray,
-	IsBoolean,
-	IsIn,
-	IsJSON,
-	IsObject,
-	IsOptional,
-	ValidateIf,
-	ValidateNested,
-} from "class-validator";
-import { IsEnum, IsInt, IsNumber, IsString, IsUrl } from "src/validator";
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsJSON, IsObject, IsOptional, ValidateNested } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsNumber, IsString, IsUrl } from "src/validator";
 import { IsArrayOrFalse } from "src/validator/decorators/custom/ArrayOrFalse";
 import { IsNumberOrFalse } from "src/validator/decorators/custom/IsNumberOrFalse";
 import { IsStringOrFalse } from "src/validator/decorators/custom/IsStringOrFalse";
 import { IsValidComparisonValue } from "src/validator/decorators/custom/IsValidComparisonValue";
 
 class ServiceDetailTitleDto {
+	@IsOptional()
 	@IsIn(["plain", "styled"])
-	type: "plain" | "styled";
+	type?: "plain" | "styled";
 
+	@IsOptional()
 	@IsString()
-	text: string;
+	text?: string;
 }
 
 export enum FieldEnum {
@@ -35,11 +26,13 @@ export enum FieldEnum {
 }
 
 export class CalculationFieldsDto {
+	@IsOptional()
 	@IsString()
-	name: string;
+	name?: string;
 
+	@IsOptional()
 	@IsString()
-	fieldId: string;
+	fieldId?: string;
 
 	@IsOptional()
 	@IsStringOrFalse()
@@ -47,98 +40,109 @@ export class CalculationFieldsDto {
 
 	@IsOptional()
 	@IsStringOrFalse()
-	title: string | false;
+	title?: string | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	titleIndonesian: string | false;
+	titleIndonesian?: string | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	placeholder: string | false;
+	placeholder?: string | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	placeholderIndonesian: string | false;
+	placeholderIndonesian?: string | false;
 
+	@IsOptional()
 	@IsEnum(FieldEnum)
-	field: FieldEnum;
+	field?: FieldEnum;
 
+	@IsOptional()
 	@IsString()
-	type: string;
+	type?: string;
 
 	@IsOptional()
-	defaultValue: string | number | boolean | Array<any> | string[] | number[] | Record<any, any> | object | null;
-
-	@IsOptional()
-	@IsNumberOrFalse()
-	min: number | false;
+	defaultValue?: string | number | boolean | Array<any> | string[] | number[] | Record<any, any> | object | null;
 
 	@IsOptional()
 	@IsNumberOrFalse()
-	max: number | false;
+	min?: number | false;
 
 	@IsOptional()
 	@IsNumberOrFalse()
-	step: number | false;
+	max?: number | false;
+
+	@IsOptional()
+	@IsNumberOrFalse()
+	step?: number | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	suffix: string | false;
+	suffix?: string | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	prefix: string | false;
+	prefix?: string | false;
 
+	@IsOptional()
 	@IsBoolean()
-	isCurrency: boolean;
+	isCurrency?: boolean;
 
 	@IsOptional()
 	@IsArrayOrFalse()
-	options: Array<any> | false;
+	options?: Array<any> | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	label: string | false;
+	label?: string | false;
 
 	@IsOptional()
 	@IsStringOrFalse()
-	labelIndonesian: string | false;
+	labelIndonesian?: string | false;
 
-	@IsInt()
+	@IsOptional()
 	@IsNumber()
-	minRows: number;
+	minRows?: number;
 
 	@IsOptional()
 	@IsNumberOrFalse()
-	maxRows: number | false;
+	maxRows?: number | false;
 
+	@IsOptional()
 	@IsBoolean()
-	multiline: boolean;
+	multiline?: boolean;
 
+	@IsOptional()
 	@IsBoolean()
-	displayEmpty: boolean;
+	displayEmpty?: boolean;
 
+	@IsOptional()
 	@IsBoolean()
-	required: boolean;
+	required?: boolean;
 
+	@IsOptional()
 	@IsBoolean()
-	multiple: boolean;
+	multiple?: boolean;
 }
 
 export class CalculationConditionDto {
+	@IsOptional()
 	@IsString()
-	fieldId: string;
+	fieldId?: string;
 
+	@IsOptional()
 	@IsString()
-	fieldName: string;
+	fieldName?: string;
 
+	@IsOptional()
 	@IsIn(["range", "equals", "greaterThan", "lessThan"])
-	comparisonType: "range" | "equals" | "greaterThan" | "lessThan";
+	comparisonType?: "range" | "equals" | "greaterThan" | "lessThan";
 
 	// Handle `value` which can be a number or an array of two numbers (range).
+	@IsOptional()
 	@IsValidComparisonValue()
-	value: [number, number] | number;
+	value?: [number, number] | number;
 
 	@IsOptional()
 	@IsNumber()
@@ -146,98 +150,112 @@ export class CalculationConditionDto {
 }
 
 export class CalculationFormulaDto {
+	@IsOptional()
 	@IsString()
-	name: string;
+	name?: string;
 
+	@IsOptional()
 	@IsString()
-	formula: string;
+	formula?: string;
 
+	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => CalculationConditionDto)
-	conditions: CalculationConditionDto[];
+	conditions?: CalculationConditionDto[];
 }
 
 export class CalculationFormResultDto {
+	@IsOptional()
 	@IsString()
-	name: string;
+	name?: string;
 
+	@IsOptional()
 	@IsString()
-	defaultValue: string;
+	defaultValue?: string;
 
+	@IsOptional()
 	@IsString()
-	title: string;
+	title?: string;
 
+	@IsOptional()
+	@IsString()
+	description?: string;
+
+	@IsOptional()
 	@IsIn(["currency", "number"])
-	type: string;	
-		
-	@IsString()
-	description: string;
+	type?: string;
 
+	@IsOptional()
 	@IsString()
-	titleIndonesian: string;
+	titleIndonesian?: string;
 
+	@IsOptional()
 	@IsString()
-	descriptionIndonesian: string;
+	descriptionIndonesian?: string;
 
+	@IsOptional()
 	@IsBoolean()
-	isEstimated: boolean;
+	isEstimated?: boolean;
 
+	@IsOptional()
 	@IsString()
-	formulaName: string;
+	formulaName?: string;
 }
 
 class ServiceDetailCalculation {
 	// Main
+	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@ArrayMinSize(0)
 	@ArrayMaxSize(2)
 	@Type(() => ServiceDetailTitleDto)
-	title: ServiceDetailTitleDto[];
+	title?: ServiceDetailTitleDto[];
 
 	@IsString()
-	description: string;
+	description?: string;
 
 	@IsString()
-	realTimeTitle: string;
+	realTimeTitle?: string;
 
 	@IsString()
-	realTimeDescription: string;
+	realTimeDescription?: string;
 
 	@IsString()
-	realTimeConsultablePrice: string;
+	realTimeConsultablePrice?: string;
 
 	@IsString()
-	realTimeTermsAndConditionApply: string;
+	realTimeTermsAndConditionApply?: string;
 
 	// Indonesian
+	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@ArrayMinSize(0)
 	@ArrayMaxSize(2)
 	@Type(() => ServiceDetailTitleDto)
-	titleIndonesian: ServiceDetailTitleDto[];
+	titleIndonesian?: ServiceDetailTitleDto[];
 
 	@IsString()
 	@IsOptional()
-	descriptionIndonesian: string | null;
+	descriptionIndonesian?: string;
 
 	@IsString()
 	@IsOptional()
-	realTimeTitleIndonesian: string | null;
+	realTimeTitleIndonesian?: string;
 
 	@IsString()
 	@IsOptional()
-	realTimeDescriptionIndonesian: string | null;
+	realTimeDescriptionIndonesian?: string;
 
 	@IsString()
 	@IsOptional()
-	realTimeConsultablePriceIndonesian: string | null;
+	realTimeConsultablePriceIndonesian?: string;
 
 	@IsString()
 	@IsOptional()
-	realTimeTermsAndConditionApplyIndonesian: string | null;
+	realTimeTermsAndConditionApplyIndonesian?: string;
 
 	// Calculation
 	@IsOptional()
@@ -264,107 +282,122 @@ class ServiceDetailContentItem {
 	@IsString({ each: true })
 	@ArrayMinSize(0)
 	@ArrayMaxSize(2)
-	title: string[];
+	@IsOptional()
+	title?: string[];
 
+	@IsOptional()
 	@IsString()
-	description: string;
+	description?: string;
 
+	@IsOptional()
 	@IsArray()
 	@IsString({ each: true })
 	@ArrayMinSize(0)
-	tags: string[];
+	tags?: string[];
 
+	@IsOptional()
 	@IsString()
-	imageUrl: string;
+	imageUrl?: string;
 
 	@IsArray()
 	@IsOptional()
 	@IsString({ each: true })
 	@ArrayMinSize(0)
 	@ArrayMaxSize(2)
-	titleIndonesian: string[];
+	titleIndonesian?: string[];
 
 	@IsString()
 	@IsOptional()
-	descriptionIndonesian: string;
+	descriptionIndonesian?: string;
 }
 
 class ServiceDetailContent {
 	@IsString()
-	title: string;
+	title?: string;
 
 	@IsString()
-	description: string;
-
-	@IsString()
-	@IsOptional()
-	titleIndonesian: string;
+	description?: string;
 
 	@IsString()
 	@IsOptional()
-	descriptionIndonesian: string;
+	titleIndonesian?: string;
+
+	@IsString()
+	@IsOptional()
+	descriptionIndonesian?: string;
 
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => ServiceDetailContentItem)
-	serviceItems: ServiceDetailContentItem[];
+	serviceItems?: ServiceDetailContentItem[];
 }
 
 class ServiceDetailDto {
+	@IsOptional()
 	@IsString()
-	backgroundColor: string;
+	backgroundColor?: string;
 
+	@IsOptional()
 	@IsString()
-	imageUrl: string;
+	imageUrl?: string;
 
+	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@ArrayMinSize(0)
 	@ArrayMaxSize(2)
 	@Type(() => ServiceDetailTitleDto)
-	pageTitles: ServiceDetailTitleDto[];
+	pageTitles?: ServiceDetailTitleDto[];
 
+	@IsOptional()
 	@IsUrl()
-	flagIconPath: string;
+	flagIconPath?: string;
 
+	@IsOptional()
 	@IsString()
-	flagTitle: string;
+	flagTitle?: string;
 
 	@IsOptional()
 	@ValidateNested()
 	@Type(() => ServiceDetailCalculation)
-	calculation: ServiceDetailCalculation;
+	calculation?: ServiceDetailCalculation;
 
+	@IsOptional()
 	@IsArray()
 	@ValidateNested()
 	@Type(() => ServiceDetailContent)
-	contents: ServiceDetailContent;
+	contents?: ServiceDetailContent;
 }
 
-export class CreateServiceDto {
+export class UpdateServiceDto {
 	@IsString()
-	title: string;
+	@IsOptional()
+	title?: string;
 
 	@IsInt()
-	description: string;
+	@IsOptional()
+	description?: string;
 
 	@IsArray()
 	@IsString({ each: true })
 	@ArrayMinSize(0)
-	tags: string[];
+	@IsOptional()
+	tags?: string[];
 
 	@IsUrl()
-	videoUrl: string;
+	@IsOptional()
+	videoUrl?: string;
 
 	@IsString()
 	@IsOptional()
-	titleIndonesian: string;
+	titleIndonesian?: string;
 
 	@IsString()
 	@IsOptional()
-	descriptionIndonesian: string;
+	descriptionIndonesian?: string;
 
+	@IsOptional()
 	@ValidateNested()
 	@Type(() => ServiceDetailDto)
-	detail: ServiceDetailDto;
+	detail?: ServiceDetailDto;
 }
