@@ -31,7 +31,7 @@ export class MainWebSSRService {
 
 	async preset() {
 		return this.prisma.extendedClient.mainWebSSR.create({
-			data: {
+			data: {/* 
 				homeMainVideo: {
 					create: webSSRHomeMainVideoPreset,
 				},
@@ -56,7 +56,7 @@ export class MainWebSSRService {
 						...item,
 					})),
 				},
-			},
+			 */},
 		});
 	}
 
